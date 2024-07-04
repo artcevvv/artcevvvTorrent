@@ -33,7 +33,13 @@ function udpSend(socket, message, rawUrl, callback = () => {}) {
 }
 
 function respType(resp) {
-  // ...
+  const action = resp.readUInt16BE(0);
+  switch (action) {
+    case 0:
+      return 'connect';
+    case 1:
+      return 'announce';
+  }
 }
 
 function buildConnReq() {
