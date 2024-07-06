@@ -5,16 +5,16 @@ import Buffer from "buffer";
 import getPeers from "./tracker.js";
 
 export default (torrent) => {
-    getPeers(torrent, peers => {
-        peers.forEach(download);
-    })
+  getPeers(torrent, (peers) => {
+    peers.forEach(download);
+  });
 };
 
-function download(peers) {
+function download(peer) {
   const socket = new net.Socket();
 
-  socket.on("error", console.log());
-  socket.connect(peers.port, peers.ip, () => {
+  socket.on("error", console.log);
+  socket.connect(peer.port, peer.ip, () => {
     socket.write(Buffer.from("hello"));
   });
 

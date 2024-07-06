@@ -16,8 +16,7 @@ const getPeers = (torrent, callback) => {
   socket.on("message", (response) => {
     if (respType(response) === "connect") {
       const connResp = parseConnResp(response);
-      const announceReq = buildAnnounceReq(connReq.connectionId);
-      console.log(announceReq);
+      const announceReq = buildAnnounceReq(connResp.connectionId, torrent);
       udpSend(socket, announceReq, url);
     } else if (respType(response) === "announce") {
       const announceResp = parseAnnounceResp(response);
@@ -28,9 +27,8 @@ const getPeers = (torrent, callback) => {
 };
 
 function udpSend(socket, message, rawUrl, callback = () => {}) {
-  const myUrl = url.parse(rawUrl);
-  console.log(myUrl);
-  socket.send(message, 6969, message.length, myUrl.port, myUrl.host, callback);
+  const myUrl = new URL(rawUrl);
+  socket.send(message, 0, message.length, myUrl.port, myUrl.host, callback);
 }
 
 function respType(resp) {
@@ -46,7 +44,7 @@ function respType(resp) {
 function buildConnReq() {
   const buf = Buffer.alloc(16);
 
-  buf.writeUint32BE(0x417, 0);
+  buf.writeUInt32BE(0x417, 0);
   buf.writeUInt32BE(0x27101980, 4);
 
   buf.writeUInt32BE(0, 8);
@@ -64,7 +62,7 @@ function parseConnResp(resp) {
   };
 }
 
-function buildAnnounceReq(connId, torrent, port = 6881) {
+function buildAnnounceReq(connId, torrent, port = 6681) {
   const buf = Buffer.allocUnsafe(98);
 
   connId.copy(buf, 0);
