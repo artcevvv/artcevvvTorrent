@@ -2,7 +2,7 @@
 
 import net from "net";
 import Buffer from "buffer";
-import getPeers from "./tracker";
+import getPeers from "./tracker.js";
 
 export default (torrent) => {
     getPeers(torrent, peers => {
@@ -14,7 +14,7 @@ function download(peers) {
   const socket = new net.Socket();
 
   socket.on("error", console.log());
-  socket.connect(peer.port, peer.ip, () => {
+  socket.connect(peers.port, peers.ip, () => {
     socket.write(Buffer.from("hello"));
   });
 

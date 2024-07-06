@@ -1,11 +1,9 @@
 "use strict";
 
-import dgram from "dgram";
-import { Buffer } from "buffer";
-import crypto from "crypto";
-import genId from "./util.js";
 import url from "node:url";
-import bencode from "bencode";
+import crypto from "crypto";
+import { Buffer } from "buffer";
+import dgram from "dgram";
 
 const getPeers = (torrent, callback) => {
   const socket = dgram.createSocket("udp4");
@@ -56,14 +54,6 @@ function buildConnReq() {
   return buf;
 }
 
-function parseConnResp(resp) {
-  return {
-    action: resp.readUInt32BE(0),
-    transactionId: resp.readUInt32BE(4),
-    connectionId: resp.slice(8),
-  };
-}
-
 function buildAnnounceReq(connId, torrent, port = 6881) {
   const buf = Buffer.allocUnsafe(98);
 
@@ -89,27 +79,3 @@ function buildAnnounceReq(connId, torrent, port = 6881) {
 
   return buf;
 }
-
-function parseAnnounceResp(resp) {
-  function group(iterable, groupSize) {
-    let groups = [];
-    for (let i = 0; i < iterable.length; i += groupSize) {
-      groups.push(iterable.slice(i, i + groupSize));
-    }
-    return groups;
-  }
-  return {
-    action: resp.readUInt32BE(0),
-    transactionId: resp.readUInt32BE(4),
-    leechers: resp.readUInt32BE(8),
-    seeders: resp.readUInt32BE(12),
-    peers: group(resp.slice(20), 8).map((address) => {
-      return {
-        ip: address.slice(0, 4).join("."),
-        port: address.readUInt16BE(4),
-      };
-    }),
-  };
-}
-
-export default getPeers;

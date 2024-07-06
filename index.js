@@ -8,6 +8,6 @@ import download from './src/download.js';
 import net from 'net';
 import Buffer from 'buffer';
 
-const torrent = open(process.argv[2]);
+const torrent = open('puppy.torrent');
 
 download(torrent);
