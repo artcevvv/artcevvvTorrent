@@ -117,11 +117,47 @@ const buildCancel = (payload) => {
   return buf;
 };
 
-const buildPort= payload => {
-    const buf = Buffer.alloc(7);
+const buildPort = (payload) => {
+  const buf = Buffer.alloc(7);
 
-    buf.writeUInt32BE(3, 0);
-    buf.writeUInt8(9, 4);
-    buf.writeUInt16BE(payload, 5);
-    return buf;
+  buf.writeUInt32BE(3, 0);
+  buf.writeUInt8(9, 4);
+  buf.writeUInt16BE(payload, 5);
+  return buf;
+};
+
+const parse = msg => {
+  const id = msg.length > 4 ? msg.readUInt8(4) : null;
+  let payload = msg.length > 5 ? msg.slice(5) : null;
+
+  if (id === 6 || id === 7 || id === 8){
+    const rest = payload.slice(8);
+    payload = {
+      index: payload.readInt32BE(0),
+      begin: payload.readInt32BE(4)
+    };
+    payload[id === 7 ? 'block' : 'length'] = rest;
+  }
+
+  return {
+    size: msg.readInt32BE(0),
+    id: id,
+    payload: payload
+  }
 }
+
+export {
+  buildPort,
+  buildCancel,
+  buildPiece,
+  buildRequest,
+  buildBitfield,
+  buildHave,
+  buildUnInterested,
+  buildInterested,
+  buildUnchoke,
+  buildChoke,
+  buildKeepAlive,
+  buildHandshake,
+  parse,
+};
